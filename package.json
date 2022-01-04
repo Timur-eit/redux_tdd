@@ -15,8 +15,8 @@
   "homepage": "https://github.com/Timur-eit/redux_tdd#readme",
   "scripts": {
     "test": "jest",
-    "build": "tsc --project ./",
-    "start": "node ./src/index.js"
+    "build": "npx babel --extensions .ts src --out-dir dist",
+    "start": "node ./dist/index.js"
   },
   "jest": {
     "transform": {
