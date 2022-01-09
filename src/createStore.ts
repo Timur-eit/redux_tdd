@@ -13,11 +13,10 @@ export function createStore<S, A extends Action>(reducer: Reducer<S | undefined,
     let state = reducer(initialState, { type: "@@redux/INIT" } as A);
 
     const getState = () => state;
+    const subscribe = () => { return };
     const dispatch = (action: A) => {
-        const currentState = getState();
         state = reducer(getState(), action);
     };
-    const subscribe = () => { return };
 
     return { dispatch, getState, subscribe };
 }
