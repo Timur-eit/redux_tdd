@@ -1,21 +1,17 @@
 type Action = { type: string };
-// export interface AnyAction extends Action {
-//     [extraProps: string]: any
-// }
 type Reducer<S, A> = (state: S, action: A) => S;
-
-
-const store = createStore<number, { type: "a" | "b" }>(x => x);
-
-// store.dispatch({type: 1});
 
 export function createStore<S, A extends Action>(reducer: Reducer<S | undefined, A>, initialState?: S) {
     let state = reducer(initialState, { type: "@@redux/INIT" } as A);
+    let subscribeCallback: undefined | ( () => void );
 
     const getState = () => state;
-    const subscribe = () => { return };
+    const subscribe = (cb: () => void) => {
+        subscribeCallback = cb;
+    };
     const dispatch = (action: A) => {
         state = reducer(getState(), action);
+        subscribeCallback && subscribeCallback();
     };
 
     return { dispatch, getState, subscribe };
