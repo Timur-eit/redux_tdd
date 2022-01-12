@@ -1,17 +1,24 @@
-type Action = { type: string };
+export type Action = { type: string };
 type Reducer<S, A> = (state: S, action: A) => S;
 
 export function createStore<S, A extends Action>(reducer: Reducer<S | undefined, A>, initialState?: S) {
-    let state = reducer(initialState, { type: "@@redux/INIT" } as A);
-    let subscribeCallback: undefined | ( () => void );
+    let state = reducer(initialState, { type: "@@redux/INIT" } as A);    
+
+    const subscribers: Array<() => void> = [];
 
     const getState = () => state;
     const subscribe = (cb: () => void) => {
-        subscribeCallback = cb;
+        subscribers.push(cb);
+        const inner = () => {
+            const cbIndex = subscribers.indexOf(cb);
+            subscribers.splice(cbIndex, 1);
+        };
+        return inner;
     };
     const dispatch = (action: A) => {
         state = reducer(getState(), action);
-        subscribeCallback && subscribeCallback();
+        subscribers.forEach((cb) => cb());
+        
     };
 
     return { dispatch, getState, subscribe };

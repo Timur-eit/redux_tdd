@@ -40,35 +40,48 @@ describe('createStore', () => {
     	expect(state).toEqual(1);
   	})
 	it ('callback function in subscribe should be invoked after each state changing', () => {
-		
-		const reducer = (
-			state: number | undefined,
-			action: { type: string }
-		) => {
-			switch (action.type) {
-				case INCREMENT:
-					return state! + 1;
-				case DECREMENT:
-					return state! - 1;
-				default:
-					return state;
-			}
-		}
-		
-		const store = createStore(reducer, 0);
-
-		let currentStateForCheck: number | undefined;
-		store.subscribe(() => {
-			currentStateForCheck = store.getState();
-		});
+		const store = createStore((s) => s, 'qwerty');
+		// https://www.codewars.com/kata/i-spy
+		const listener = jest.fn();
+		store.subscribe(listener);
 
 		store.dispatch({ type: INCREMENT });
-		expect(currentStateForCheck).toEqual(store.getState());
+		expect(listener).toHaveBeenCalledTimes(1);
 
-		store.dispatch({ type: DECREMENT });
-		expect(currentStateForCheck).toEqual(store.getState());
+		store.dispatch({ type: INCREMENT });
+		expect(listener).toHaveBeenCalledTimes(2);
+	})
+	it ('multiple callback functions in subscribe should be invoked after each state changing', () => {
+		const store = createStore((s) => s, 'qwerty');
+		const listener1 = jest.fn();
+		const listener2 = jest.fn();
+		store.subscribe(listener1);
+		store.subscribe(listener2);
 
-		store.dispatch({ type: DECREMENT });
-		expect(currentStateForCheck).toEqual(store.getState());
+		store.dispatch({ type: INCREMENT });
+		expect(listener1).toHaveBeenCalledTimes(1);
+		expect(listener2).toHaveBeenCalledTimes(1);
+
+		store.dispatch({ type: INCREMENT });
+		expect(listener1).toHaveBeenCalledTimes(2);
+		expect(listener2).toHaveBeenCalledTimes(2);
+	})
+	it ('unsibscribe', () => {
+		const store = createStore((s) => s, 'qwerty');
+		const listener1 = jest.fn();
+		const listener2 = jest.fn();
+
+		store.subscribe(listener1);
+		const unsubscribe2 = store.subscribe(listener2);
+
+		store.dispatch({ type: INCREMENT });
+		expect(listener1).toHaveBeenCalledTimes(1);
+		expect(listener2).toHaveBeenCalledTimes(1);
+
+		unsubscribe2();
+
+		store.dispatch({ type: INCREMENT });
+		expect(listener1).toHaveBeenCalledTimes(2);
+		expect(listener2).toHaveBeenCalledTimes(1);
 	})
 })
