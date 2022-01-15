@@ -1,5 +1,5 @@
 export type Action = { type: string };
-type Reducer<S, A> = (state: S, action: A) => S;
+export type Reducer<S, A> = (state: S, action: A) => S;
 
 export function createStore<S, A extends Action>(reducer: Reducer<S | undefined, A>, initialState?: S) {
     let state = reducer(initialState, { type: "@@redux/INIT" } as A);    
