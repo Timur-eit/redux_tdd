@@ -21,11 +21,11 @@ describe('combineReducers', () => {
     });
     
     test('works for unknown actions', () => {
-        const states = {
+        const state = {
             a: [1,2,3],
             b: 5,
         };
-        const globalStates = reducer(states, '@@redux/INIT');
+        const globalStates = reducer(state, '@@redux/INIT');
         expect(globalStates).toEqual({
             model1: [1, 2, 3],
             model2: 5,

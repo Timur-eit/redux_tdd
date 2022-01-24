@@ -1,7 +1,6 @@
 import { createStore } from './createStore';
 
 const INCREMENT = 'INCREMENT';
-const DECREMENT = 'DECREMENT';
 
 describe('createStore', () => {
 	it("should return object with subscribe, dispatch & getState methods", () => {
@@ -120,13 +119,13 @@ describe('createStore', () => {
 	it("should support middleware enchancer", () => {
 		const sideEffect1 = jest.fn();
 		const sideEffect2 = jest.fn();
-		// @ts-ignore
+		
 		const middleware1 = storeAPI => next => action => {
 			sideEffect1(action);
 			console.log("middleware 1")
 			return next(action);
 		}
-		// @ts-ignore
+		
 		const middleware2 = storeAPI => next => action => {
 			sideEffect2(action);
 			console.log("middleware 2")
@@ -168,8 +167,7 @@ describe('createStore', () => {
 		const store = createStore(reducer, initialState, enhancer);
 
 		store.dispatch({ type: "add" });
-
-		// expect(sideEffect).toBeCalledWith({ type: "add" });
+		
 		expect(sideEffect1).toHaveBeenCalledTimes(1);
 		expect(sideEffect2).toHaveBeenCalledTimes(1);
 	})
