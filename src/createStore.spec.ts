@@ -84,4 +84,100 @@ describe('createStore', () => {
 		expect(listener1).toHaveBeenCalledTimes(2);
 		expect(listener2).toHaveBeenCalledTimes(1);
 	})
+
+	it("should support enchancer", () => {
+		// @ts-ignore
+		function enhancer(createStore) {
+			// @ts-ignore
+			return function(reducer, initialState)	{
+				const store = createStore(reducer, initialState);
+
+				function myGetState() {
+					return {
+						...store.getState(),
+						hello: 123,
+					};
+				}
+
+				return {
+					...store,
+					getState: myGetState,
+				};
+			};
+		}
+
+		const initialState = {
+			x: 1,
+		};
+
+		const reducer = (x: unknown) => x;
+
+		const store = createStore(reducer, initialState, enhancer);
+
+		expect(store.getState()).toEqual({
+			x: 1,
+			hello: 123,
+		});
+
+	})
+
+	it("should support middleware enchancer", () => {
+		const sideEffect1 = jest.fn();
+		const sideEffect2 = jest.fn();
+		// @ts-ignore
+		const middleware1 = storeAPI => next => action => {
+			sideEffect1(action);
+			console.log("middleware 1")
+			return next(action);
+		}
+		// @ts-ignore
+		const middleware2 = storeAPI => next => action => {
+			sideEffect2(action);
+			console.log("middleware 2")
+			return next(action);
+		}
+
+		// @ts-ignore
+		function enhancer(createStore) {
+			// @ts-ignore
+			return function(reducer, initialState)	{
+				const store = createStore(reducer, initialState);
+				const { dispatch, getState } = store;
+				const storeAPI = { dispatch, getState };
+		
+				// @ts-ignore
+				function myDispatch(action) {
+					// 2nd arg → next: (action) => ...
+					const next = middleware2(storeAPI)(dispatch)
+					return middleware1(storeAPI)(next)(action);
+				}
+
+				return {
+					...store,
+					dispatch: myDispatch,
+				};
+			};
+		}
+
+		const initialState = {
+			x: 1,
+		};
+
+
+		// @ts-ignore
+		const reducer = (state, action) => {
+			if (action.type === "add") {
+				return { ...state, x: state.x + 1 };
+			}
+			return state;
+		};
+
+		const store = createStore(reducer, initialState, enhancer);
+
+		store.dispatch({ type: "add" });
+
+		// expect(sideEffect).toBeCalledWith({ type: "add" });
+		expect(sideEffect1).toHaveBeenCalledTimes(1);
+		expect(sideEffect2).toHaveBeenCalledTimes(1);
+	})
 })

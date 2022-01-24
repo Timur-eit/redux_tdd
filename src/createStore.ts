@@ -1,7 +1,16 @@
 export type Action = { type: string };
 export type Reducer<S, A> = (state: S, action: A) => S;
 
-export function createStore<S, A extends Action>(reducer: Reducer<S | undefined, A>, initialState?: S) {
+export function createStore<S, A extends Action>(
+    reducer: Reducer<S | undefined, A>,
+    initialState?: S,
+    enhancer?: Function,
+) {
+    if (enhancer !== undefined) {
+        const enhancedCreateStore = enhancer(createStore);
+        return enhancedCreateStore(reducer, initialState);
+    }
+
     let state = reducer(initialState, { type: "@@redux/INIT" } as A);    
 
     const subscribers: Array<() => void> = [];

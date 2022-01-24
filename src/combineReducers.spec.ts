@@ -1,43 +1,47 @@
 import { combineReducers, R1Action, R2Action } from './combineReducers';
 
 describe('combineReducers', () => {
-
-    const s1 = [1,2,3];
-    const s2: number = 5;
-
-    function r1(state = s1, action: R1Action) {
+    function r1(state = [1,2,3], action: R1Action) {
         if (action.type === "push") {
-          return [...state, action.payload];
+            return [...state, action.payload];
         }
         return state;
     }
-
-    function r2(state = s2, action: R2Action) {
+    
+    function r2(state = 5, action: R2Action) {
         if (action.type === "add") {
-          return state + action.payload;
+            return state + action.payload;
         }
         return state;
     }
-
-    const states = {a: s1, b: s2 };
-    const action1: R1Action = { type: 'push', payload: 5 };
-    const action2: R1Action = { type: 'add', payload: 1 };
-
-    const reducers = combineReducers({
+        
+    const reducer = combineReducers({
         model1: r1,
         model2: r2,
     });
-
     
-    const globalStates = reducers(states, '@@redux/INIT');
-
-    it('combined reducers returns object with states', () => {
-        
-        expect(globalStates).toHaveProperty('model1');
-        expect(globalStates).toHaveProperty('model2');
+    test('works for unknown actions', () => {
+        const states = {
+            a: [1,2,3],
+            b: 5,
+        };
+        const globalStates = reducer(states, '@@redux/INIT');
+        expect(globalStates).toEqual({
+            model1: [1, 2, 3],
+            model2: 5,
+        });
     });
-    it('combined reducers includes initial states', () => {
-        expect(globalStates.model1).toStrictEqual(s1);
-        expect(globalStates.model2).toEqual(s2);
-    })
+
+    test('works for known actions', () => {
+        const state = {
+            a: [1,2,3],
+            b: 5,
+        };
+        const updatedState = reducer(state, {type: 'push', payload: 100});
+
+        expect(updatedState).toEqual({
+            model1: [1, 2, 3, 100],
+            model2: 5,
+        });
+    });
 });
