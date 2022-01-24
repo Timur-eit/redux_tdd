@@ -1,14 +1,14 @@
-import { combineReducers, R1Action, R2Action } from './combineReducers';
+import { combineReducers } from './combineReducers';
 
 describe('combineReducers', () => {
-    function r1(state = [1,2,3], action: R1Action) {
+    function r1(state = [1,2,3], action) {
         if (action.type === "push") {
             return [...state, action.payload];
         }
         return state;
     }
     
-    function r2(state = 5, action: R2Action) {
+    function r2(state = 5, action) {
         if (action.type === "add") {
             return state + action.payload;
         }

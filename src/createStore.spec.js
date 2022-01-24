@@ -24,12 +24,9 @@ describe('createStore', () => {
     	expect(state).toEqual('asdfgh');
 	})
   	it ('after dispatch state should be changed', () => {
-    	const reducer = (
-			state: number | undefined,
-			action: { type: string }
-		) => {
+    	const reducer = (state, action) => {
         	if (action.type === INCREMENT) {
-        		return state! + 1;
+        		return state + 1;
         	}
         	return state;
     	};
@@ -86,12 +83,11 @@ describe('createStore', () => {
 	})
 
 	it("should support enchancer", () => {
-		// @ts-ignore
-		function enhancer(createStore) {
-			// @ts-ignore
+		
+		function enhancer(createStore) {		
 			return function(reducer, initialState)	{
 				const store = createStore(reducer, initialState);
-
+				
 				function myGetState() {
 					return {
 						...store.getState(),
@@ -110,7 +106,7 @@ describe('createStore', () => {
 			x: 1,
 		};
 
-		const reducer = (x: unknown) => x;
+		const reducer = (x) => x;
 
 		const store = createStore(reducer, initialState, enhancer);
 
@@ -137,15 +133,14 @@ describe('createStore', () => {
 			return next(action);
 		}
 
-		// @ts-ignore
+		
 		function enhancer(createStore) {
-			// @ts-ignore
+		
 			return function(reducer, initialState)	{
 				const store = createStore(reducer, initialState);
 				const { dispatch, getState } = store;
 				const storeAPI = { dispatch, getState };
 		
-				// @ts-ignore
 				function myDispatch(action) {
 					// 2nd arg → next: (action) => ...
 					const next = middleware2(storeAPI)(dispatch)
@@ -162,9 +157,7 @@ describe('createStore', () => {
 		const initialState = {
 			x: 1,
 		};
-
-
-		// @ts-ignore
+		
 		const reducer = (state, action) => {
 			if (action.type === "add") {
 				return { ...state, x: state.x + 1 };
